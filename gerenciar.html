@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <script src="gerenciar.js" defer></script>
+  <title>Gerenciar Ordens de Serviço</title>
+</head>
+
+<body>
+  <div class="container management-container">
+    <div class="header">
+      <i class="fas fa-tasks logo"></i>
+      <h1>Gerenciar Ordens de Serviço</h1>
+    </div>
+    <div class="user-info-header">
+      <span id="user-greeting"></span>
+      <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </div>
+
+    <div class="dashboard-nav">
+      <a href="index.html" class="btn btn-save"><i class="fas fa-plus"></i> Nova OS</a>
+      <a href="dashboard.html" class="btn btn-dashboard-link"><i class="fas fa-chart-line"></i> Ver Dashboard</a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-container">
+      <div class="filter-group search-filter">
+        <input type="text" id="search-input" placeholder="Buscar por OS, equipamento, solicitante...">
+        <i class="fas fa-search"></i>
+      </div>
+      <div class="filter-group">
+        <select id="status-filter">
+          <option value="">Todos os Status</option>
+          <option value="pendente">Pendente</option>
+          <option value="em_andamento">Em Andamento</option>
+          <option value="concluida">Concluída</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <select id="priority-filter">
+          <option value="">Todas as Prioridades</option>
+          <option value="Baixa">Baixa</option>
+          <option value="Média">Média</option>
+          <option value="Alta">Alta</option>
+          <option value="Crítica">Crítica</option>
+          <option value="Emergencial">Emergencial</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <input type="date" id="date-filter">
+      </div>
+      <button id="clear-filters-btn" class="btn btn-secondary"><i class="fas fa-times"></i> Limpar</button>
+    </div>
+
+    <!-- Tabela de Ordens de Serviço -->
+    <div class="table-container">
+      <table class="os-table">
+        <thead>
+          <tr>
+            <th>Nº OS</th>
+            <th>Equipamento</th>
+            <th>Solicitante</th>
+            <th>Data Abertura</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="os-table-body">
+          <!-- Linhas serão inseridas via JavaScript -->
+        </tbody>
+      </table>
+      <div id="loading-spinner" class="loading-spinner" style="display: none;">
+        <i class="fas fa-spinner fa-spin"></i> Carregando...
+      </div>
+      <p id="no-results-message" style="display: none; text-align: center; padding: 20px;">Nenhum resultado encontrado.
+      </p>
+    </div>
+
+    <!-- Paginação -->
+    <div class="pagination-container">
+      <div class="pagination-info" id="pagination-info"></div>
+      <div class="pagination-controls" id="pagination-controls">
+        <!-- Botões de paginação serão inseridos via JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- Modal de Edição de Ordem de Serviço (reutilizado de index.html) -->
+  <div id="editar-os-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Editar Ordem de Serviço</h2>
+        <span class="close" onclick="closeModal('editar-os-modal')">&times;</span>
+      </div>
+      <form id="form-editar-os" class="modal-form">
+        <!-- O conteúdo do formulário é idêntico ao de index.html -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit_num_os">Número da OS:</label>
+            <input type="text" id="edit_num_os" name="num_os" readonly>
+          </div>
+          <div class="form-group">
+            <label for="edit_equipamento">Equipamento:</label>
+            <select id="edit_equipamento" name="equipamento"
+                    data-endpoint="api/get_equipamentos.php"
+                    data-formatter="equipamento"
+                    data-placeholder="Selecione um equipamento"
+                    class="dynamic-select"
+            >
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit_localizacao">Localização:</label>
+            <select id="edit_localizacao" name="localizacao"
+                    data-endpoint="api/get_localizacoes.php"
+                    data-formatter="localizacao"
+                    data-placeholder="Selecione uma localização"
+                    class="dynamic-select"
+            >
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit_tipo_manutencao">Tipo de Manutenção:</label>
+            <select id="edit_tipo_manutencao" name="tipo_manutencao"
+                    data-endpoint="api/get_tipos_manutencao.php"
+                    data-formatter="default"
+                    data-placeholder="Selecione o tipo"
+                    class="dynamic-select"
+            >
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit_area_manutencao">Área de Manutenção:</label>
+            <select id="edit_area_manutencao" name="area_manutencao"
+                    data-endpoint="api/get_areas_manutencao.php"
+                    data-formatter="default"
+                    data-placeholder="Selecione a área"
+                    class="dynamic-select"
+            >
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit_prioridade">Prioridade:</label>
+            <select id="edit_prioridade" name="prioridade">
+              <option value="">Selecione a prioridade</option>
+              <option value="Baixa">Baixa</option>
+              <option value="Média">Média</option>
+              <option value="Alta">Alta</option>
+              <option value="Crítica">Crítica</option>
+              <option value="Emergencial">Emergencial</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit_solicitante">Solicitante:</label>
+            <input type="text" id="edit_solicitante" name="solicitante">
+          </div>
+          <div class="form-group">
+            <label for="edit_status">Status:</label>
+            <select id="edit_status" name="status">
+              <option value="pendente">Pendente</option>
+              <option value="em_andamento">Em Andamento</option>
+              <option value="concluida">Concluída</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit_data_inicial">Data Inicial:</label>
+            <input type="date" id="edit_data_inicial" name="data_inicial">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group input-grande">
+            <label for="edit_descricao_problema">Descrição do Problema:</label>
+            <textarea id="edit_descricao_problema" name="descricao_problema"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit_data_final">Data Final:</label>
+            <input type="date" id="edit_data_final" name="data_final">
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Atualizar</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editar-os-modal')">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+
+</html>

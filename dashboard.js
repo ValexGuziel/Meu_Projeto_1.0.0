@@ -79,6 +79,13 @@ function updateSummaryCards(data) {
     document.getElementById('total-os-value').textContent = data.totalOS || 0;
     document.getElementById('pending-os-value').textContent = data.byStatus?.pendente || 0;
     document.getElementById('in-progress-os-value').textContent = data.byStatus?.em_andamento || 0;
+
+    const avgTimeValueEl = document.getElementById('avg-time-value');
+    if (data.avgCompletionTime !== 'N/A') {
+        avgTimeValueEl.innerHTML = `${data.avgCompletionTime} <span style="font-size: 0.5em; color: #6c757d;">dias</span>`;
+    } else {
+        avgTimeValueEl.innerHTML = `<span style="font-size: 0.8em;">N/A</span>`;
+    }
 }
 
 function renderStatusChart(statusData) {

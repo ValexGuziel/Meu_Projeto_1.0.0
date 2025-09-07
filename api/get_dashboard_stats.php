@@ -50,12 +50,22 @@ try {
     // Total de OS
     $totalOS = $pdo->query("SELECT COUNT(*) FROM ordens_servico")->fetchColumn();
 
+    // Calcular o tempo médio de conclusão (MTTR em dias)
+    $stmtMttr = $pdo->query("
+        SELECT AVG(DATEDIFF(data_final, data_inicial)) as avg_completion_time
+        FROM ordens_servico
+        WHERE status = 'concluida' AND data_final IS NOT NULL AND data_inicial IS NOT NULL
+    ");
+    $avgCompletionTime = $stmtMttr->fetchColumn();
+
     $data = [
         'byStatus' => $statsByStatus,
         'byPriority' => $statsByPriority,
         'byMaintainer' => $statsByMaintainer,
         'topEquipment' => $statsTopEquipment,
         'totalOS' => $totalOS,
+        // Formata para 1 casa decimal ou mostra 'N/A' se não houver dados
+        'avgCompletionTime' => $avgCompletionTime !== null ? number_format($avgCompletionTime, 1) : 'N/A',
     ];
 
     jsonResponse(true, 'Estatísticas carregadas com sucesso', $data);

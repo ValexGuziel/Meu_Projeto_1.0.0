@@ -29,7 +29,7 @@
 
     <div class="dashboard-nav">
       <a href="index.html" class="btn btn-save"><i class="fas fa-plus"></i> Nova OS</a>
-      <a href="gerenciar.html" class="btn btn-manage-link"><i class="fas fa-tasks"></i> Gerenciar OS</a>
+      <a href="gerenciar.html" class="btn btn-manage-link"><i class="fas fa-tasks"></i> Visualizar OS</a>
       <button id="export-pdf-btn" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Exportar para PDF</button>
     </div>
 
@@ -56,7 +56,20 @@
           <span class="card-value" id="in-progress-os-value">--</span>
         </div>
       </div>
+      <div class="card">
+        <div class="card-icon" style="color: #388e3c;">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <div class="card-content">
+          <div class="card-title">Tempo Médio de Conclusão</div>
+          <!-- MTTR - Mean Time To Repair -->
+          <div class="card-value" id="avg-time-value">0 <span style="font-size: 0.5em; color: #6c757d;">dias</span>
+          </div>
+        </div>
+      </div>
     </div>
+
+
 
     <!-- Gráficos -->
     <div class="charts-grid">

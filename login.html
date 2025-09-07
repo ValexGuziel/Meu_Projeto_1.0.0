@@ -19,16 +19,19 @@
 
     <form id="login-form" class="os-form">
       <div class="details-section">
-        <div class="form-group input-grande">
+        <div class="form-group">
           <label for="email">Email:</label>
-          <input type="email" id="email" name="email" required>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+          </div>
         </div>
-      </div>
-
-      <div class="details-section">
-        <div class="form-group input-grande">
+        <div class="form-group">
           <label for="senha">Senha:</label>
-          <input type="password" id="senha" name="senha" required>
+          <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+          </div>
         </div>
       </div>
 
@@ -36,7 +39,7 @@
         <button type="submit" class="btn btn-save">
           <i class="fas fa-sign-in-alt"></i> Entrar
         </button>
-        <p style="text-align: center; margin: 0;">
+        <p style="text-align:center; margin: 0;">
           Não tem uma conta? <a href="register.html">Cadastre-se aqui</a>.
         </p>
       </div>
@@ -56,4 +59,5 @@
     }
   </script>
 </body>
+
 </html>

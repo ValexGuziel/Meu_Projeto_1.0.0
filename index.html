@@ -1,382 +1,94 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <script src="auth_check.js"></script> <!-- Adicionado para proteção -->
-  <script src="script.js" defer></script>
-  <title>Ordem de Serviço</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Equipamentos</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">
-      <i class="fas fa-tools logo"></i>
-      <h1>Cadastro de Ordem de Serviço</h1>
-    </div>
-    <div class="user-info-header">
-      <span id="user-greeting"></span>
-      <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
-    </div>
+    <div class="container">
 
-    <form class="os-form">
-      <!-- Primeira Linha -->
-      <div class="details-section">
-        <div class="linhas primeira-linha">
-          <div class="item_3">
-            <label for="num_os">Número da OS:</label>
-            <input type="text" id="num_os" name="num_os">
-          </div>
-          <div class="item_2">
-            <label for="equipamento">Equipamento:</label>
-            <select id="equipamento" name="equipamento"
-                    data-endpoint="api/get_equipamentos.php"
-                    data-formatter="equipamento"
-                    data-placeholder="Selecione um Equipamento"
-                    class="dynamic-select"
-            >
-              <option value="">Carregando...</option>
-            </select>
-          </div>
-          <div>
-            <button type="button" class="btn-equipamento" onclick="openModal('equipamento-modal')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-          <div class="item_1">
-            <label for="localizacao">Localização:</label>
-            <select id="localizacao" name="localizacao"
-                    data-endpoint="api/get_localizacoes.php"
-                    data-formatter="localizacao"
-                    data-placeholder="Selecione uma localização"
-                    class="dynamic-select"
-            >
-              <option value="">Carregando...</option>
-            </select>
-          </div>
-          <div>
-            <button type="button" class="btn-equipamento" onclick="openModal('localizacao-modal')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+        <nav class="main-nav">
+            <a href="index.html"><i class="fa-solid fa-plus"></i> Cadastrar Equipamento</a><a
+                href="listar_equipamentos.php"><i class="fa-solid fa-list"></i> Listar Equipamentos</a>
 
-      <!-- Segunda Linha -->
-      <div class="details-section">
-        <div class="linhas segunda-linha">
-          <div class="item_1">
-            <label for="tipo_manutencao">Tipo de Manutenção:</label>
-            <select id="tipo_manutencao" name="tipo_manutencao"
-                    data-endpoint="api/get_tipos_manutencao.php"
-                    data-formatter="default"
-                    data-placeholder="Selecione o tipo"
-                    class="dynamic-select"
-            >
-              <option value="">Carregando...</option>
-            </select>
-          </div>
-          <div>
-            <button type="button" class="btn-equipamento" onclick="openModal('tipo-manutencao-modal')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-          <div class="item_1">
-            <label for="area_manutencao">Área de Manutenção:</label>
-            <select id="area_manutencao" name="area_manutencao"
-                    data-endpoint="api/get_areas_manutencao.php"
-                    data-formatter="default"
-                    data-placeholder="Selecione a área"
-                    class="dynamic-select"
-            >
-              <option value="">Carregando...</option>
-            </select>
-          </div>
-          <div>
-            <button type="button" class="btn-equipamento" onclick="openModal('area-manutencao-modal')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-          <div class="item_1">
-            <label for="prioridade">Prioridade:</label>
-            <select id="prioridade" name="prioridade">
-              <option value="">Selecione a prioridade</option>
-              <option value="Baixa">Baixa</option>
-              <option value="Média">Média</option>
-              <option value="Alta">Alta</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Terceira Linha -->
-      <div class="details-section">
-        <div class="linhas terceira-linha">
-          <div class="item_2">
-            <label for="solicitante">Solicitante:</label>
-            <input type="text" id="solicitante" name="solicitante">
-          </div>
-          <div class="item_2">
-            <label for="status">Status:</label>
-            <select id="status" name="status">
-              <option value="pendente">Pendente</option>
-              <option value="em_andamento">Em Andamento</option>
-              <option value="concluida">Concluída</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
-          </div>
-          <div class="item_1">
-            <label for="data_inicial">Data Inicial:</label>
-            <input type="date" id="data_inicial" name="data_inicial">
-          </div>
-          <div class="item_1">
-            <label for="data_final">Data Final:</label>
-            <input type="date" id="data_final" name="data_final">
-          </div>
-        </div>
-      </div>
-
-      <!-- Quarta Linha -->
-      <div class="details-section quarta-linha">
-        <div class="item_grande">
-          <label for="descricao_problema">Descrição do Problema:</label>
-          <textarea id="descricao_problema" name="descricao_problema"></textarea>
-        </div>
-      </div>
-
-      <!-- Botões principais abaixo do formulário -->
-      <div class="botoes-principais">
-        <button type="submit" class="btn btn-cadastrar">
-          <i class="fas fa-save"></i> Cadastrar OS
-        </button>
-        <a href="dashboard.html" class="btn btn-dashboard">
-          <i class="fas fa-chart-bar"></i> Dashboard
-        </a>
-        <a href="gerenciar.html" class="btn btn-visualizar">
-          <i class="fas fa-list"></i> Visualizar OS
-        </a>
-      </div>
-    </form>
-
-    <!-- Modal de Cadastro de Equipamento -->
-    <div id="equipamento-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-tools"></i> Cadastrar Equipamento</h2>
-          <span class="close" onclick="closeModal('equipamento-modal')">&times;</span>
-        </div>
-        <form id="form-equipamento" class="modal-form">
-          <div>
-            <label for="equipamento_nome">Nome do Equipamento:</label>
-            <input type="text" id="equipamento_nome" name="nome" required>
-          </div>
-          <div>
-            <label for="equipamento_codigo">Código:</label>
-            <input type="text" id="equipamento_codigo" name="codigo" required>
-          </div>
-          <div>
-            <label for="equipamento_descricao">Descrição:</label>
-            <textarea id="equipamento_descricao" name="descricao"></textarea>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Salvar</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('equipamento-modal')">
-              <i class="fas fa-times"></i> Cancelar
-            </button>
-          </div>
+        </nav>
+        <h1>CADASTRO DE EQUIPAMENTOS</h1>
+        <form id="equipForm" enctype="multipart/form-data" method="POST" action="cadastro.php">
+            <div class="form-row">
+                <label for="nome">Nome do Equipamento:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-row">
+                <label for="tag">TAG de Identificação:</label>
+                <input type="text" id="tag" name="tag" placeholder="Ex: PAT-00123" required>
+            </div>
+            <div class="form-row">
+                <label for="setor">Setor:</label>
+                <input type="text" id="setor" name="setor" required>
+            </div>
+            <div class="form-row">
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao" name="descricao" required>
+            </div>
+            <div class="form-row form-row-photo">
+                <div>
+                    <label for="foto">Foto do Equipamento:</label>
+                    <input type="file" id="foto" name="foto" accept="image/*" required>
+                    <img id="preview" class="equip-photo-preview" style="display:none;" />
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="submit-btn btn-cadastro">Cadastrar Equipamento</button>
+                <div class="info-bar" id="info-bar">Londrina, 24 de Maio de 2024, 14:30:00</div>
+            </div>
         </form>
-      </div>
     </div>
+    <script>
+        // Preview da foto
+        document.getElementById('foto').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (evt) {
+                    const img = document.getElementById('preview');
+                    img.src = evt.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
-    <!-- Modal de Cadastro de Localização -->
-    <div id="localizacao-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-map-marker-alt"></i> Cadastrar Localização</h2>
-          <span class="close" onclick="closeModal('localizacao-modal')">&times;</span>
-        </div>
-        <form id="form-localizacao" class="modal-form">
-          <div>
-            <label for="localizacao_nome">Nome da Localização:</label>
-            <input type="text" id="localizacao_nome" name="nome" required>
-          </div>
-          <div>
-            <label for="localizacao_setor">Setor:</label>
-            <input type="text" id="localizacao_setor" name="setor" required>
-          </div>
-          <div>
-            <label for="localizacao_descricao">Descrição:</label>
-            <textarea id="localizacao_descricao" name="descricao"></textarea>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Salvar</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('localizacao-modal')">
-              <i class="fas fa-times"></i> Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        // Submete o formulário via AJAX para permanecer na mesma página
+        document.getElementById('equipForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
 
-    <!-- Modal de Cadastro de Tipo de Manutenção -->
-    <div id="tipo-manutencao-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-wrench"></i> Cadastrar Tipo de Manutenção</h2>
-          <span class="close" onclick="closeModal('tipo-manutencao-modal')">&times;</span>
-        </div>
-        <form id="form-tipo-manutencao" class="modal-form">
-          <div>
-            <label for="tipo_manutencao_nome">Nome do Tipo:</label>
-            <input type="text" id="tipo_manutencao_nome" name="nome" required>
-          </div>
-          <div>
-            <label for="tipo_manutencao_descricao">Descrição:</label>
-            <textarea id="tipo_manutencao_descricao" name="descricao"></textarea>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Salvar</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('tipo-manutencao-modal')">
-              <i class="fas fa-times"></i> Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Modal de Cadastro de Área de Manutenção -->
-    <div id="area-manutencao-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-users-cog"></i> Cadastrar Área de Manutenção</h2>
-          <span class="close" onclick="closeModal('area-manutencao-modal')">&times;</span>
-        </div>
-        <form id="form-area-manutencao" class="modal-form">
-          <div>
-            <label for="area_manutencao_nome">Nome da Área:</label>
-            <input type="text" id="area_manutencao_nome" name="nome" required>
-          </div>
-          <div>
-            <label for="area_manutencao_responsavel">Responsável:</label>
-            <input type="text" id="area_manutencao_responsavel" name="responsavel" required>
-          </div>
-          <div>
-            <label for="area_manutencao_descricao">Descrição:</label>
-            <textarea id="area_manutencao_descricao" name="descricao"></textarea>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Salvar</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('area-manutencao-modal')">
-              <i class="fas fa-times"></i> Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-
-    <div id="toast-container"></div>
-    <!-- Restante do seu conteúdo -->
-
-    <!-- Modal de Edição de Ordem de Serviço -->
-    <div id="editar-os-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-edit"></i> Editar Ordem de Serviço</h2>
-          <span class="close" onclick="closeModal('editar-os-modal')">&times;</span>
-        </div>
-        <form id="form-editar-os" class="modal-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit_num_os">Número da OS:</label>
-              <input type="text" id="edit_num_os" name="num_os" readonly>
-            </div>
-            <div class="form-group">
-              <label for="edit_equipamento">Equipamento:</label>
-              <select id="edit_equipamento" name="equipamento">
-                <option value="">Selecione um equipamento</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit_localizacao">Localização:</label>
-              <select id="edit_localizacao" name="localizacao">
-                <option value="">Selecione uma localização</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="edit_tipo_manutencao">Tipo de Manutenção:</label>
-              <select id="edit_tipo_manutencao" name="tipo_manutencao">
-                <option value="">Selecione o tipo</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit_area_manutencao">Área de Manutenção:</label>
-              <select id="edit_area_manutencao" name="area_manutencao">
-                <option value="">Selecione a área</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="edit_prioridade">Prioridade:</label>
-              <select id="edit_prioridade" name="prioridade">
-                <option value="">Selecione a prioridade</option>
-                <option value="Baixa">Baixa</option>
-                <option value="Média">Média</option>
-                <option value="Alta">Alta</option>
-                <option value="Crítica">Crítica</option>
-                <option value="Emergencial">Emergencial</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit_solicitante">Solicitante:</label>
-              <input type="text" id="edit_solicitante" name="solicitante">
-            </div>
-            <div class="form-group">
-              <label for="edit_status">Status:</label>
-              <select id="edit_status" name="edit_status">
-                <option value="pendente">Pendente</option>
-                <option value="em_andamento">Em Andamento</option>
-                <option value="concluida">Concluída</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="edit_data_inicial">Data Inicial:</label>
-              <input type="date" id="edit_data_inicial" name="data_inicial">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group input-grande">
-              <label for="edit_descricao_problema">Descrição do Problema:</label>
-              <textarea id="edit_descricao_problema" name="descricao_problema"></textarea>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit_data_final">Data Final:</label>
-              <input type="date" id="edit_data_final" name="data_final">
-            </div>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Salvar</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('editar-os-modal')">
-              <i class="fas fa-times"></i> Cancelar
-            </button>
-          </div>
-        </form>
-
-      </div>
-    </div>
-
-  </div>
+            fetch('cadastro.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json()) // Espera uma resposta JSON
+                .then(data => {
+                    alert(data.message); // Exibe a mensagem de sucesso ou erro
+                    if (data.success) {
+                        // Limpa o formulário após o sucesso
+                        document.getElementById('equipForm').reset();
+                        document.getElementById('preview').style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Erro:', error);
+                    alert('Ocorreu um erro de comunicação ao tentar cadastrar o equipamento.');
+                });
+        });
+    </script>
 </body>
 
 </html>

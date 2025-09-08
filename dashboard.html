@@ -33,6 +33,24 @@
       <button id="export-pdf-btn" class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Exportar para PDF</button>
     </div>
 
+    <!-- Filtros de Data -->
+    <div class="filters-container" style="margin-bottom: 25px;">
+      <div class="filter-group">
+        <label for="start-date-filter">Data Inicial</label>
+        <input type="date" id="start-date-filter">
+      </div>
+      <div class="filter-group">
+        <label for="end-date-filter">Data Final</label>
+        <input type="date" id="end-date-filter">
+      </div>
+      <div style="display: flex; align-items: flex-end; gap: 10px;">
+        <button id="apply-date-filter-btn" class="btn btn-save" style="padding: 10px 15px;"><i
+            class="fas fa-filter"></i> Aplicar</button>
+        <button id="clear-date-filter-btn" class="btn btn-secondary" style="padding: 10px 15px;"><i
+            class="fas fa-times"></i> Limpar</button>
+      </div>
+    </div>
+
     <!-- Cards de Resumo -->
     <div class="summary-cards">
       <div class="card">
@@ -77,6 +95,7 @@
       <div class="chart-container"><canvas id="priorityChart"></canvas></div>
       <div class="chart-container"><canvas id="maintainerChart"></canvas></div>
       <div class="chart-container"><canvas id="topEquipmentChart"></canvas></div>
+      <div class="chart-container"><canvas id="downtimeChart"></canvas></div>
     </div>
   </div>
 </body>

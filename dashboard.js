@@ -1,11 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardData();
+    // Define o filtro de data para o mês atual e carrega os dados
+    initializeWithCurrentMonth();
+
     setupPdfExportButton();
+    setupDateFilters();
 });
 
-async function loadDashboardData() {
+function initializeWithCurrentMonth() {
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    // Formata as datas para YYYY-MM-DD
+    const startDate = firstDay.toISOString().slice(0, 10);
+    const endDate = lastDay.toISOString().slice(0, 10);
+
+    document.getElementById('start-date-filter').value = startDate;
+    document.getElementById('end-date-filter').value = endDate;
+    loadDashboardData(startDate, endDate);
+}
+
+function setupDateFilters() {
+    const applyBtn = document.getElementById('apply-date-filter-btn');
+    const clearBtn = document.getElementById('clear-date-filter-btn');
+    const startDateInput = document.getElementById('start-date-filter');
+    const endDateInput = document.getElementById('end-date-filter');
+
+    applyBtn.addEventListener('click', () => {
+        loadDashboardData(startDateInput.value, endDateInput.value);
+    });
+
+    clearBtn.addEventListener('click', () => {
+        startDateInput.value = '';
+        endDateInput.value = '';
+        loadDashboardData(null, null);
+    });
+}
+
+async function loadDashboardData(startDate, endDate) {
     try {
-        const response = await fetch('api/get_dashboard_stats.php');
+        // Corrigido: Constrói a URL relativa à localização atual do projeto,
+        // garantindo que o caminho /Meu_Projeto/ seja incluído.
+        const url = new URL('api/get_dashboard_stats.php', window.location.href);
+
+        if (startDate && endDate) {
+            url.searchParams.append('start_date', startDate);
+            url.searchParams.append('end_date', endDate);
+        }
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Falha ao carregar dados do dashboard.');
 
         const result = await response.json();
@@ -16,11 +59,22 @@ async function loadDashboardData() {
         // Atualiza os cards de resumo
         updateSummaryCards(data);
 
+        // Limpa os canvases antes de renderizar novos gráficos
+        const chartsGrid = document.querySelector('.charts-grid');
+        chartsGrid.querySelectorAll('canvas').forEach(canvas => {
+            const chartContainer = canvas.parentElement;
+            canvas.remove();
+            const newCanvas = document.createElement('canvas');
+            newCanvas.id = canvas.id;
+            chartContainer.appendChild(newCanvas);
+        });
+
         // Renderiza os gráficos
         renderStatusChart(data.byStatus);
         renderPriorityChart(data.byPriority);
         renderMaintainerChart(data.byMaintainer);
         renderTopEquipmentChart(data.topEquipment);
+        renderDowntimeChart(data.equipmentDowntime); // Nova chamada
 
     } catch (error) {
         console.error('Erro no dashboard:', error);
@@ -91,6 +145,14 @@ function updateSummaryCards(data) {
 function renderStatusChart(statusData) {
     const ctx = document.getElementById('statusChart').getContext('2d');
 
+    if (!statusData || Object.keys(statusData).length === 0) {
+        ctx.font = "16px 'Roboto'";
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText("Nenhum dado para o período.", ctx.canvas.width / 2, ctx.canvas.height / 2);
+        return;
+    }
+
     const labels = Object.keys(statusData);
     const values = Object.values(statusData);
 
@@ -127,6 +189,14 @@ function renderStatusChart(statusData) {
 
 function renderTopEquipmentChart(equipmentData) {
     const ctx = document.getElementById('topEquipmentChart').getContext('2d');
+
+    if (!equipmentData || equipmentData.length === 0) {
+        ctx.font = "16px 'Roboto'";
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText("Nenhum dado para o período.", ctx.canvas.width / 2, 50);
+        return;
+    }
 
     const labels = equipmentData.map(item => item.equipamento_nome);
     const values = equipmentData.map(item => item.total_os);
@@ -165,8 +235,58 @@ function renderTopEquipmentChart(equipmentData) {
     });
 }
 
+/**
+ * Renderiza o gráfico de tempo de parada por equipamento.
+ * @param {Array} downtimeData - Dados de tempo de parada por equipamento.
+ */
+function renderDowntimeChart(downtimeData) {
+    const ctx = document.getElementById('downtimeChart').getContext('2d');
+
+    if (!downtimeData || downtimeData.length === 0) {
+        // Opcional: Mostrar uma mensagem se não houver dados
+        ctx.font = "16px 'Roboto'";
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText("Nenhum dado de tempo de parada disponível.", ctx.canvas.width / 2, 50);
+        return;
+    }
+
+    const labels = downtimeData.map(item => item.equipamento_nome);
+    const values = downtimeData.map(item => item.total_dias_parado);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Dias de Parada',
+                data: values,
+                backgroundColor: '#dc3545', // Vermelho para indicar parada
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Tempo de Parada por Equipamento (Dias)', font: { size: 18 } }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
 function renderMaintainerChart(maintainerData) {
     const ctx = document.getElementById('maintainerChart').getContext('2d');
+
+    if (!maintainerData || maintainerData.length === 0) {
+        ctx.font = "16px 'Roboto'";
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText("Nenhum dado para o período.", ctx.canvas.width / 2, 50);
+        return;
+    }
 
     const labels = maintainerData.map(item => item.responsavel);
     const values = maintainerData.map(item => item.total);
@@ -213,6 +333,14 @@ function renderMaintainerChart(maintainerData) {
 
 function renderPriorityChart(priorityData) {
     const ctx = document.getElementById('priorityChart').getContext('2d');
+
+    if (!priorityData || Object.keys(priorityData).length === 0) {
+        ctx.font = "16px 'Roboto'";
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText("Nenhum dado para o período.", ctx.canvas.width / 2, 50);
+        return;
+    }
 
     const labels = Object.keys(priorityData);
     const values = Object.values(priorityData);

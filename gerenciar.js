@@ -207,31 +207,21 @@ async function deleteOS(osId, osNumero) {
     }
 }
 
-// Sobrescreve a função de sucesso do formulário de edição para recarregar a tabela
-const originalSetupEditOSForm = window.setupEditOSForm;
-window.setupEditOSForm = function() {
-    originalSetupEditOSForm(); // Chama a função original
-    const form = document.getElementById('form-editar-os');
-    
-    // Remove o listener antigo para evitar duplicação
-    const newForm = form.cloneNode(true);
-    form.parentNode.replaceChild(newForm, form);
-
-    newForm.addEventListener('submit', function(e) {
-        // A lógica de submit já está no script.js, só precisamos garantir que a tabela seja recarregada
-        const originalThen = fetch.prototype.then;
-        fetch.prototype.then = function(onFulfilled, onRejected) {
-            const newOnFulfilled = (response) => {
-                if (response.url.includes('update_ordem_servico.php')) {
-                    response.clone().json().then(data => {
-                        if (data.success) {
-                            window.reloadOrdensServico();
-                        }
-                    });
+// Adiciona um observador para recarregar a tabela quando o modal de edição for fechado.
+// Esta é uma abordagem mais limpa e garantida.
+document.addEventListener('DOMContentLoaded', () => {
+    const editModal = document.getElementById('modal-editar-os');
+    if (editModal) {
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                // Verifica se o modal foi fechado (o estilo 'display' mudou para 'none')
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    if (editModal.style.display === 'none') {
+                        window.reloadOrdensServico(); // Recarrega a tabela
+                    }
                 }
-                return onFulfilled(response);
-            };
-            return originalThen.call(this, newOnFulfilled, onRejected);
-        };
-    });
-};
+            }
+        });
+        observer.observe(editModal, { attributes: true });
+    }
+});

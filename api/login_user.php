@@ -22,6 +22,7 @@ try {
         session_start();
         $_SESSION['user_id'] = $usuario['id'];
         $_SESSION['user_name'] = $usuario['nome'];
+        $_SESSION['user_email'] = $usuario['email']; // Adiciona o e-mail na sessão
 
         jsonResponse(true, 'Login realizado com sucesso!');
     } else {

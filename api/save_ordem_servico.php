@@ -20,6 +20,12 @@
 require_once 'config.php';
 require_once 'check_auth.php'; // Adiciona a verificação de login
 
+// Verificação de permissão de administrador
+$admin_email = 'claudio.ramos@mastpet.com.br';
+if (!isset($_SESSION['user_email']) || $_SESSION['user_email'] !== $admin_email) {
+    jsonResponse(false, 'Acesso negado. Apenas administradores podem cadastrar novas Ordens de Serviço.', null, 403);
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(false, 'Método não permitido');
 }
